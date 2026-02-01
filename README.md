@@ -2,6 +2,13 @@
 
 FlySafeSMS is an open source companion to FlySafe focused on emergency SMS location sharing between trusted friends. It lets you add friends, control sharing permissions, and auto-reply to verified SMS requests with GPS or last-known location.
 
+## Download APK
+<p>
+  <a href="https://github.com/jeancaffou/FlySafeSMS/releases/latest">
+    <img alt="Download FlySafeSMS APK" src="https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge" />
+  </a>
+</p>
+
 ## Features
 - Add/remove friends and manage per-friend location sharing
 - Auto-reply to verified SMS requests (GPS or last-known)
@@ -37,6 +44,14 @@ Logcat tag is `FlySafeSMS`. The SMS receiver logs incoming PDUs, parsed messages
 
 ## Build
 Open in Android Studio and run `assembleDebug` or `assembleRelease`.
+
+## Automatic Releases (GitHub)
+Releases are built automatically when a GitHub Release is **published**. The workflow:
+- Runs on `release.published`
+- Checks out the repo and sets up JDK 17
+- Decodes secrets for `google-services.json` and the signing keystore
+- Builds a signed release APK with `:app:assembleRelease`
+- Uploads the generated APK(s) to the GitHub Release assets
 
 ## Contributing
 Issues and pull requests are welcome.

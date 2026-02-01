@@ -1,0 +1,7 @@
+<resources>
+    <color name="sms_primary">#2563EB</color>
+    <color name="sms_primary_dark">#1E40AF</color>
+    <color name="sms_accent">#F59E0B</color>
+    <color name="sms_bg">#0B1020</color>
+    <color name="sms_text">#E5E7EB</color>
+</resources>

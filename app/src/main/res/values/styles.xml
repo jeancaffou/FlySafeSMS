@@ -1,0 +1,15 @@
+<resources>
+    <style name="Theme.FlySafeSms" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/sms_primary</item>
+        <item name="colorPrimaryVariant">@color/sms_primary_dark</item>
+        <item name="colorAccent">@color/sms_accent</item>
+        <item name="android:windowBackground">@color/sms_bg</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay_FlySafeSms_Circle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="ThemeOverlay.FlySafeSms.Popup" parent="ThemeOverlay.MaterialComponents.Light" />
+</resources>

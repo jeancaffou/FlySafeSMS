@@ -1,0 +1,4 @@
+<resources>
+    <item name="initial_padding" type="id" />
+    <item name="initial_margin" type="id" />
+</resources>

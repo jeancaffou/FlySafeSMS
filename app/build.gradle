@@ -1,0 +1,50 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    signingConfigs {
+        release {
+            if (System.getenv("FLYSAFE_SMS_KEYSTORE_PATH") != null) {
+                storeFile file(System.getenv("FLYSAFE_SMS_KEYSTORE_PATH"))
+                storePassword System.getenv("FLYSAFE_SMS_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("FLYSAFE_SMS_KEY_ALIAS")
+                keyPassword System.getenv("FLYSAFE_SMS_KEY_PASSWORD")
+            }
+        }
+    }
+    compileSdkVersion 36
+
+    defaultConfig {
+        applicationId "pro.flysafe.sms"
+        minSdkVersion 24
+        targetSdkVersion 36
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    namespace 'pro.flysafe.sms'
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.google.android.gms:play-services-auth:21.3.0'
+}

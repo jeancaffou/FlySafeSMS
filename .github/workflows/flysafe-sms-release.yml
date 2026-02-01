@@ -1,0 +1,39 @@
+name: FlySafeSMS Release APK
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build release APK
+        working-directory: FlySafeSMS
+        run: |
+          chmod +x gradlew
+          echo "${{ secrets.FLYSAFE_SMS_GOOGLE_SERVICES_JSON }}" | base64 -d > FlySafeSMS/app/google-services.json
+          echo "${{ secrets.FLYSAFE_SMS_KEYSTORE_BASE64 }}" | base64 -d > /tmp/flysafe_sms_keystore.jks
+          export FLYSAFE_SMS_KEYSTORE_PATH=/tmp/flysafe_sms_keystore.jks
+          export FLYSAFE_SMS_KEYSTORE_PASSWORD="${{ secrets.FLYSAFE_SMS_KEYSTORE_PASSWORD }}"
+          export FLYSAFE_SMS_KEY_ALIAS="${{ secrets.FLYSAFE_SMS_KEY_ALIAS }}"
+          export FLYSAFE_SMS_KEY_PASSWORD="${{ secrets.FLYSAFE_SMS_KEY_PASSWORD }}"
+          ./gradlew :app:assembleRelease
+
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            FlySafeSMS/app/build/outputs/apk/release/*.apk

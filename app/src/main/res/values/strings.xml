@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">FlySafe SMS</string>
+    <string name="login_emergency_title">FlySafe Emergency SMS</string>
+
+    <string name="login_title">Sign in</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_button">Sign in</string>
+    <string name="signin_with_google">Sign in with Google</string>
+
+    <string name="friends_title">Friends</string>
+    <string name="sms_settings_title">SMS emergency replies</string>
+    <string name="sms_settings_desc">Reply automatically with your location when a trusted friend requests it by SMS.</string>
+    <string name="sms_roaming_title">Allow SMS replies while roaming</string>
+
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_login">Invalid login. Please check your email and password.</string>
+
+    <string name="sms_request_gps">Send SMS location request (GPS)</string>
+    <string name="sms_request_lkl">Send SMS location request (Last known)</string>
+    <string name="sms_no_phone_set">Add your phone number in your FlySafe profile to send SMS requests.</string>
+    <string name="sms_no_friend_phone">This friend does not have a phone number linked for SMS requests.</string>
+    <string name="add_friend">Add friend</string>
+    <string name="find_people">Find people</string>
+    <string name="search_people_hint">Search by name</string>
+    <string name="remove_friend">Remove friend</string>
+    <string name="remove_friend_confirm">Remove this friend from your list?</string>
+    <string name="logout">Logout</string>
+    <string name="logout_confirm">Are you sure you want to log out?</string>
+    <string name="enable_background_location">Allow background location</string>
+    <string name="enable_background_location_desc">FlySafeSMS needs \"Allow all the time\" location access to respond to trusted SMS requests while the app is in the background.</string>
+</resources>

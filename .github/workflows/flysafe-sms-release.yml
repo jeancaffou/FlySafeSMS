@@ -18,13 +18,12 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Build release APK
-        working-directory: FlySafeSMS
         run: |
-          chmod +x gradlew
-          echo "${{ secrets.FLYSAFE_SMS_GOOGLE_SERVICES_JSON }}" | base64 -d > FlySafeSMS/app/google-services.json
+          chmod +x ./gradlew
+          echo "${{ secrets.FLYSAFE_SMS_GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
           echo "${{ secrets.FLYSAFE_SMS_KEYSTORE_BASE64 }}" | base64 -d > /tmp/flysafe_sms_keystore.jks
           export FLYSAFE_SMS_KEYSTORE_PATH=/tmp/flysafe_sms_keystore.jks
           export FLYSAFE_SMS_KEYSTORE_PASSWORD="${{ secrets.FLYSAFE_SMS_KEYSTORE_PASSWORD }}"
@@ -36,4 +35,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            FlySafeSMS/app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/release/*.apk

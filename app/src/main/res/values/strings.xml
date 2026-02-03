@@ -20,6 +20,12 @@
     <string name="sms_request_lkl">Send SMS location request (Last known)</string>
     <string name="sms_no_phone_set">Add your phone number in your FlySafe profile to send SMS requests.</string>
     <string name="sms_no_friend_phone">This friend does not have a phone number linked for SMS requests.</string>
+    <string name="sms_friend_data_missing">Friend data is incomplete. Refresh your friends list and try again.</string>
+    <string name="sms_enter_phone_title">Add your phone number</string>
+    <string name="sms_enter_phone_message">Enter your phone number with country code (for example, +14155552671) so friends can request your location by SMS.</string>
+    <string name="sms_enter_phone_legacy_note">Legacy note: Previously in FlySafe, SMS requests used the SmsRetriever API, which does not disclose the sender phone number, so we embedded the reply phone in the SMS text.</string>
+    <string name="sms_enter_phone_hint">+123456789</string>
+    <string name="sms_enter_phone_invalid">Please enter a valid phone number with country code (like +14155552671).</string>
     <string name="add_friend">Add friend</string>
     <string name="find_people">Find people</string>
     <string name="search_people_hint">Search by name</string>
@@ -28,5 +34,14 @@
     <string name="logout">Logout</string>
     <string name="logout_confirm">Are you sure you want to log out?</string>
     <string name="enable_background_location">Allow background location</string>
-    <string name="enable_background_location_desc">FlySafeSMS needs \"Allow all the time\" location access to respond to trusted SMS requests while the app is in the background.</string>
+    <string name="enable_background_location_desc">FlySafeSMS needs "Allow all the time" location access to respond to trusted SMS requests while the app is in the background.</string>
+
+    <string name="friends_section_sharing_my_location">Sharing my location</string>
+    <string name="friends_section_shared_with_me">Shared their location with me</string>
+    <string name="friends_section_no_sharing">Friends (no sharing yet)</string>
+
+    <string name="friends_status_both">You share locations with each other</string>
+    <string name="friends_status_sharing_my_location">You share your location with this friend</string>
+    <string name="friends_status_shared_with_me">This person shares their location with you</string>
+    <string name="friends_status_no_sharing">No location sharing set up</string>
 </resources>

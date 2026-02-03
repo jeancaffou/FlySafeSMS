@@ -1,6 +1,9 @@
 package pro.flysafe.sms;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,35 +12,43 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import org.json.JSONArray;
 
+import java.util.ArrayList;
+
 import pro.flysafe.sms.adapter.FriendAdapter;
 import pro.flysafe.sms.adapter.PeopleAdapter;
 import pro.flysafe.sms.model.Friend;
 import pro.flysafe.sms.model.Person;
 import pro.flysafe.sms.util.PrivatePref;
-import pro.flysafe.sms.util.Util;
 import pro.flysafe.sms.util.SmsRequestHelper;
+import pro.flysafe.sms.util.Util;
 
 public class FriendsFragment extends Fragment {
     public static final String CACHE_KEY = "cache_friends_json_v1";
+    public static final String CACHE_KEY_LOC = "cache_loc_json_v2";
 
     private FriendAdapter adapter;
     private RequestQueue queue;
@@ -61,23 +72,23 @@ public class FriendsFragment extends Fragment {
         smsEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> Util.save(ctx, "pref_sms_loc", isChecked));
         smsRoaming.setOnCheckedChangeListener((buttonView, isChecked) -> Util.save(ctx, "pref_sms_roaming", isChecked));
 
-        ListView list = root.findViewById(R.id.friendsList);
-        adapter = new FriendAdapter(ctx, (friend, enabled) -> {
-            // Mirror the main app behavior: allow/deny location sharing per friend.
-            if (enabled) {
-                allowLoc(ctx, friend.uid);
-            } else {
-                denyLoc(ctx, friend.uid);
-            }
-        }, friend -> confirmRemoveFriend(ctx, friend));
+        RecyclerView list = root.findViewById(R.id.friendsList);
+        list.setLayoutManager(new LinearLayoutManager(ctx));
+        adapter = new FriendAdapter(
+                ctx,
+                (friend, enabled) -> {
+                    // Mirror the main app behavior: allow/deny location sharing per friend.
+                    if (enabled) {
+                        allowLoc(ctx, friend.uid);
+                    } else {
+                        denyLoc(ctx, friend.uid);
+                    }
+                },
+                friend -> confirmRemoveFriend(ctx, friend),
+                friend -> showFriendDialog(ctx, friend)
+        );
         list.setAdapter(adapter);
-        // Tap a friend to generate an SMS request using the same message format as FlySafe.
-        list.setOnItemClickListener((parent, view, position, id) -> showRequestDialog(ctx, adapter.getFriend(position)));
-        // Long-press a friend to quickly remove them.
-        list.setOnItemLongClickListener((parent, view, position, id) -> {
-            confirmRemoveFriend(ctx, adapter.getFriend(position));
-            return true;
-        });
+        attachSwipeToDelete(list);
 
         swipeRefreshLayout = root.findViewById(R.id.swipeRefresh);
         swipeRefreshLayout.setOnRefreshListener(this::refreshFriends);
@@ -93,23 +104,24 @@ public class FriendsFragment extends Fragment {
         return root;
     }
 
-    private void showRequestDialog(Context ctx, Friend friend) {
-        // Provide quick actions for GPS vs last-known location requests.
+    private void showFriendDialog(Context ctx, Friend friend) {
+        ArrayList<CharSequence> options = new ArrayList<>();
+        ArrayList<Runnable> actions = new ArrayList<>();
+
+        if (friend.sharedWithMe) {
+            options.add(ctx.getString(R.string.sms_request_gps));
+            actions.add(() -> SmsRequestHelper.sendRequest(ctx, friend, "GPS"));
+            options.add(ctx.getString(R.string.sms_request_lkl));
+            actions.add(() -> SmsRequestHelper.sendRequest(ctx, friend, "LastKnownLocation"));
+        }
+
+        options.add(ctx.getString(R.string.remove_friend));
+        actions.add(() -> confirmRemoveFriend(ctx, friend));
+
+        String title = Util.isEmpty(friend.name) ? "Friend" : friend.name;
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-        builder.setTitle(friend.name);
-        builder.setItems(new CharSequence[] {
-                ctx.getString(R.string.sms_request_gps),
-                ctx.getString(R.string.sms_request_lkl),
-                ctx.getString(R.string.remove_friend)
-        }, (dialog, which) -> {
-            if (which == 0) {
-                SmsRequestHelper.sendRequest(ctx, friend, "GPS");
-            } else if (which == 1) {
-                SmsRequestHelper.sendRequest(ctx, friend, "LastKnownLocation");
-            } else if (which == 2) {
-                confirmRemoveFriend(ctx, friend);
-            }
-        });
+        builder.setTitle(title);
+        builder.setItems(options.toArray(new CharSequence[0]), (dialog, which) -> actions.get(which).run());
         builder.show();
     }
 
@@ -118,7 +130,13 @@ public class FriendsFragment extends Fragment {
         new AlertDialog.Builder(ctx)
                 .setTitle(R.string.remove_friend)
                 .setMessage(R.string.remove_friend_confirm)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> removeFriend(ctx, friend.uid))
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    if (friend.isFriend) {
+                        removeFriend(ctx, friend.uid);
+                    } else if (friend.sharedWithMe) {
+                        removeMeFromLoc(ctx, friend.uid);
+                    }
+                })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
@@ -126,8 +144,9 @@ public class FriendsFragment extends Fragment {
     private void setFriendsFromCache(Context ctx) {
         try {
             // Cache is shared with the main app schema for compatibility.
-            JSONArray cached = new JSONArray(PrivatePref.getString(ctx, CACHE_KEY, "[]"));
-            adapter.setFriends(Friend.getArray(cached));
+            JSONArray cachedFriends = new JSONArray(PrivatePref.getString(ctx, CACHE_KEY, "[]"));
+            JSONArray cachedLoc = new JSONArray(PrivatePref.getString(ctx, CACHE_KEY_LOC, "[]"));
+            adapter.setFriends(Friend.merge(cachedFriends, cachedLoc));
         } catch (Exception e) {
             Util.log(e);
         }
@@ -140,11 +159,18 @@ public class FriendsFragment extends Fragment {
         }
         swipeRefreshLayout.setRefreshing(true);
 
-        // Pull current friends list from the same endpoint as the main app.
-        JsonArrayRequest r = new JsonArrayRequest(Request.Method.GET, Util.API_ENDPOINT + "/mobile/friends/" + Util.getUserId(ctx), null,
+        JsonObjectRequest r = new JsonObjectRequest(Request.Method.GET, Util.API_ENDPOINT + "/mobile/sharedLocFriends/" + Util.getUserId(ctx), null,
                 response -> {
-                    adapter.setFriends(Friend.getArray(response));
-                    PrivatePref.save(ctx, CACHE_KEY, response.toString());
+                    JSONArray friendsJson = response.optJSONArray("friends");
+                    JSONArray locJson = response.optJSONArray("loc");
+                    adapter.setFriends(Friend.merge(friendsJson, locJson));
+
+                    if (friendsJson != null) {
+                        PrivatePref.save(ctx, CACHE_KEY, friendsJson.toString());
+                    }
+                    if (locJson != null) {
+                        PrivatePref.save(ctx, CACHE_KEY_LOC, locJson.toString());
+                    }
                     swipeRefreshLayout.setRefreshing(false);
                 },
                 error -> {
@@ -169,6 +195,10 @@ public class FriendsFragment extends Fragment {
         apiFriend(ctx, uid, "removeFriend");
     }
 
+    private void removeMeFromLoc(Context ctx, String uid) {
+        apiFriend(ctx, uid, "removeMeFromFriendLoc");
+    }
+
     private void apiFriend(Context ctx, String friend, String action) {
         // Reuse the same friend-management API endpoints as FlySafe.
         JsonArrayRequest r = new JsonArrayRequest(Request.Method.GET, Util.API_ENDPOINT + "/mobile/" + action + "/" + Util.getUserId(ctx) + "/" + friend, null,
@@ -188,7 +218,7 @@ public class FriendsFragment extends Fragment {
                 .create();
         dialog.show();
 
-        ListView peopleList = layout.findViewById(R.id.peopleList);
+        android.widget.ListView peopleList = layout.findViewById(R.id.peopleList);
         PeopleAdapter peopleAdapter = new PeopleAdapter(ctx);
         peopleList.setAdapter(peopleAdapter);
 
@@ -291,5 +321,76 @@ public class FriendsFragment extends Fragment {
             view.setLayoutParams(params);
             return insets;
         });
+    }
+
+    private void attachSwipeToDelete(RecyclerView list) {
+        Drawable deleteIcon = ContextCompat.getDrawable(list.getContext(), R.drawable.ic_delete_24);
+        if (deleteIcon != null) {
+            DrawableCompat.setTint(deleteIcon, ContextCompat.getColor(list.getContext(), android.R.color.white));
+        }
+        ColorDrawable background = new ColorDrawable(ContextCompat.getColor(list.getContext(), R.color.sms_delete_bg));
+
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                int position = viewHolder.getAdapterPosition();
+                if (adapter.isHeaderPosition(position)) {
+                    return makeMovementFlags(0, 0);
+                }
+                return makeMovementFlags(0, ItemTouchHelper.LEFT);
+            }
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                Friend friend = adapter.getFriendAt(position);
+                if (friend != null) {
+                    confirmRemoveFriend(list.getContext(), friend);
+                }
+                adapter.notifyItemChanged(position);
+            }
+
+            @Override
+            public void onChildDraw(@NonNull Canvas canvas,
+                                    @NonNull RecyclerView recyclerView,
+                                    @NonNull RecyclerView.ViewHolder viewHolder,
+                                    float dX,
+                                    float dY,
+                                    int actionState,
+                                    boolean isCurrentlyActive) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && dX < 0 && deleteIcon != null) {
+                    View itemView = viewHolder.itemView;
+                    int backgroundLeft = itemView.getRight() + (int) dX;
+                    int backgroundRight = itemView.getRight();
+                    int backgroundTop = itemView.getTop();
+                    int backgroundBottom = itemView.getBottom();
+                    background.setBounds(backgroundLeft, backgroundTop, backgroundRight, backgroundBottom);
+                    background.draw(canvas);
+
+                    int iconMargin = (itemView.getHeight() - deleteIcon.getIntrinsicHeight()) / 2;
+                    int iconTop = itemView.getTop() + iconMargin;
+                    int iconBottom = iconTop + deleteIcon.getIntrinsicHeight();
+                    int iconRight = itemView.getRight() - iconMargin;
+                    int iconLeft = iconRight - deleteIcon.getIntrinsicWidth();
+                    deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                    deleteIcon.draw(canvas);
+
+                    super.onChildDraw(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                    return;
+                }
+
+                super.onChildDraw(canvas, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+
+        new ItemTouchHelper(callback).attachToRecyclerView(list);
     }
 }

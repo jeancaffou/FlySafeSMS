@@ -31,4 +31,11 @@ public class PrivatePref {
         SharedPreferences sharedPref = c.getSharedPreferences(prefkey, Context.MODE_PRIVATE);
         return sharedPref.getBoolean(key, val);
     }
+
+    public static void clearAll(Context c) {
+        SharedPreferences sharedPref = c.getSharedPreferences(prefkey, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+    }
 }

@@ -1,0 +1,41 @@
+name: FlySafeSMS Play Release (AAB)
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Build release AAB
+        run: |
+          chmod +x ./gradlew
+          echo "${{ secrets.FLYSAFE_SMS_GOOGLE_SERVICES_JSON }}" | base64 -d > app/google-services.json
+          echo "${{ secrets.FLYSAFE_SMS_KEYSTORE_BASE64 }}" | base64 -d > /tmp/flysafe_sms_keystore.jks
+          export FLYSAFE_SMS_KEYSTORE_PATH=/tmp/flysafe_sms_keystore.jks
+          export FLYSAFE_SMS_KEYSTORE_PASSWORD="${{ secrets.FLYSAFE_SMS_KEYSTORE_PASSWORD }}"
+          export FLYSAFE_SMS_KEY_ALIAS="${{ secrets.FLYSAFE_SMS_KEY_ALIAS }}"
+          export FLYSAFE_SMS_KEY_PASSWORD="${{ secrets.FLYSAFE_SMS_KEY_PASSWORD }}"
+          ./gradlew :app:bundleRelease
+
+      - name: Upload to Google Play Internal (Draft)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.FLYSAFE_SMS_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: pro.flysafe.sms
+          releaseFiles: app/build/outputs/bundle/release/*.aab
+          track: internal
+          status: draft

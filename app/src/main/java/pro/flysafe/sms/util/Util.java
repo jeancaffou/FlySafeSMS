@@ -33,6 +33,17 @@ public class Util {
         }
     }
 
+    public static void save(Context c, String key, String val) {
+        try {
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(key, val);
+            editor.apply();
+        } catch (Exception e) {
+            log(e);
+        }
+    }
+
     public static boolean getBoolean(Context c, String key, boolean val) {
         try {
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(c);

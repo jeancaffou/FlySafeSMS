@@ -70,13 +70,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp">
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/friendsList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingBottom="72dp"
-            android:dividerHeight="1dp" />
+            android:paddingBottom="72dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

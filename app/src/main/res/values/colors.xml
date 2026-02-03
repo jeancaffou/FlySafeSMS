@@ -4,4 +4,11 @@
     <color name="sms_accent">#F59E0B</color>
     <color name="sms_bg">#FFFFFF</color>
     <color name="sms_text">#111827</color>
+    <color name="sms_share_highlight">#FFE7A3</color>
+    <color name="sms_share_subtle">#F3F4F6</color>
+    <color name="sms_status_outgoing">#B45309</color>
+    <color name="sms_status_incoming">#1D4ED8</color>
+    <color name="sms_status_both">#15803D</color>
+    <color name="sms_status_neutral">#6B7280</color>
+    <color name="sms_delete_bg">#DC2626</color>
 </resources>

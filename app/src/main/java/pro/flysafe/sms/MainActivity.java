@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.preference.PreferenceManager;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -84,8 +85,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void performLogout() {
-        // Remove stored user session and return to login screen.
-        PrivatePref.save(this, "user", "");
+        // Clear stored session + cached data + local preferences.
+        PrivatePref.clearAll(this);
+        PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply();
         startActivity(new android.content.Intent(this, LoginActivity.class));
         finish();
     }

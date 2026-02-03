@@ -43,7 +43,6 @@ public class SmsReceiver extends BroadcastReceiver {
                             String incomingNumber = smsmsg.getOriginatingAddress();
                             String msg = smsmsg.getMessageBody();
                             Util.log("SMS received from " + maskPhone(incomingNumber));
-                            Util.log("SMS body=" + (msg == null ? "null" : msg));
                             handleMessage(context, incomingNumber, msg);
                         }
                     } else {
@@ -116,8 +115,17 @@ public class SmsReceiver extends BroadcastReceiver {
         String payload = trimmed;
 
         if (trimmed.startsWith("<#>")) {
-            // SMS Retriever-style format:
+            // Legacy SMS Retriever-style format:
             // "<#> <replyPhone> #FlySafe <uid> <lockey> <type> 0qgXwnSWj2t"
+            //
+            // We intentionally ignore the embedded <replyPhone> value even though we still parse
+            // the message structure for backwards compatibility. Back when FlySafe used the
+            // SmsRetriever API, Android did not expose the sender's phone number to the app,
+            // so the reply number had to be included inside the SMS payload itself. Now that
+            // FlySafeSMS receives the real sender address from the telephony stack, the
+            // payload phone number is treated as legacy metadata only. We keep it in the
+            // format so older clients can still send valid requests, but we always reply to
+            // the actual sender rather than trusting the embedded value.
             String[] parts = trimmed.split(" ");
             if (parts.length < 6) {
                 Util.log("SMS parse failed: too few parts");
@@ -128,7 +136,8 @@ public class SmsReceiver extends BroadcastReceiver {
                 Util.log("SMS parse failed: missing suffix");
                 return null;
             }
-            replyTo = parts[1].trim();
+            String legacyReplyTo = parts[1].trim();
+            Util.log("SMS legacy reply phone ignored: " + maskPhone(legacyReplyTo));
             List<String> rest = new ArrayList<>();
             for (int i = 2; i < parts.length; i++) {
                 rest.add(parts[i]);

@@ -18,8 +18,8 @@ android {
         applicationId "pro.flysafe.sms"
         minSdkVersion 24
         targetSdkVersion 36
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 10101
+        versionName "1.1.1"
     }
 
     buildTypes {

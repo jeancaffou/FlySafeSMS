@@ -27,7 +27,23 @@
         android:textColor="@color/sms_text"
         app:layout_constraintStart_toEndOf="@id/friendAvatar"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/friendLocSwitch" />
+
+    <TextView
+        android:id="@+id/friendStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:gravity="start"
+        android:textColor="@color/sms_text"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/friendAvatar"
+        app:layout_constraintTop_toBottomOf="@id/friendName"
         app:layout_constraintEnd_toStartOf="@id/friendLocSwitch" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
@@ -37,17 +53,6 @@
         android:text=""
         android:layout_marginStart="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <ImageView
-        android:id="@+id/friendRemove"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="8dp"
-        android:contentDescription="@string/remove_friend"
-        android:src="@drawable/ic_delete_24"
-        app:layout_constraintEnd_toStartOf="@id/friendLocSwitch"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 

@@ -1,6 +1,7 @@
 package pro.flysafe.sms;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,8 +19,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import pro.flysafe.sms.util.Util;
 import pro.flysafe.sms.util.PrivatePref;
+import pro.flysafe.sms.util.SmsRequestHelper;
+import pro.flysafe.sms.util.UpdateChecker;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Request all SMS + location permissions up front to enable auto-replies.
         requestPermissionsIfNeeded();
+        UpdateChecker.checkForUpdateIfNeeded(this);
     }
 
     @Override
@@ -67,6 +70,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_help) {
+            startActivity(new Intent(this, HelpActivity.class));
+            return true;
+        }
+        if (item.getItemId() == R.id.action_edit_phone) {
+            SmsRequestHelper.promptForPhone(this, null, null);
+            return true;
+        }
         if (item.getItemId() == R.id.action_logout) {
             confirmLogout();
             return true;

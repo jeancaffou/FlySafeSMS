@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pro.flysafe.sms.util.PrivatePref;
+import pro.flysafe.sms.util.UpdateChecker;
 import pro.flysafe.sms.util.Util;
 
 public class LoginActivity extends AppCompatActivity {
@@ -46,6 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         queue = Volley.newRequestQueue(this);
+        UpdateChecker.checkForUpdateIfNeeded(this);
 
         // Email/password login remains, but registration is intentionally removed.
         findViewById(R.id.loginButton).setOnClickListener(view -> login());

@@ -13,6 +13,14 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import pro.flysafe.sms.R;
 import pro.flysafe.sms.model.Friend;
 
@@ -64,10 +72,15 @@ public class SmsRequestHelper {
         return Util.getString(ctx, PREF_SMS_MY_PHONE, "");
     }
 
-    private static void promptForPhone(Context ctx, Friend friend, String type) {
+    public static void promptForPhone(Context ctx, Friend friend, String type) {
         EditText input = new EditText(ctx);
         input.setInputType(InputType.TYPE_CLASS_PHONE);
         input.setHint(R.string.sms_enter_phone_hint);
+        String current = getMyPhone(ctx);
+        if (!Util.isEmpty(current)) {
+            input.setText(current);
+            input.setSelection(current.length());
+        }
         int outerPad = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 16,
@@ -107,9 +120,70 @@ public class SmsRequestHelper {
                         return;
                     }
                     Util.save(ctx, PREF_SMS_MY_PHONE, value);
-                    sendRequest(ctx, friend, type);
+                    Toast.makeText(ctx, R.string.profile_phone_save_in_progress, Toast.LENGTH_SHORT).show();
+                    savePhoneToProfile(ctx, value);
+                    if (friend != null && type != null) {
+                        sendRequest(ctx, friend, type);
+                    }
                 })
                 .setNegativeButton(android.R.string.cancel, null);
         builder.show();
     }
+
+    private static void savePhoneToProfile(Context ctx, String phone) {
+        String userId = Util.getUserId(ctx);
+        if (Util.isEmpty(userId)) {
+            Toast.makeText(ctx, R.string.profile_phone_save_failed, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        StringRequest req = new StringRequest(
+                Request.Method.POST,
+                Util.API_ENDPOINT + "/profile/edit/" + userId,
+                response -> {
+                    Util.log("profile/edit response: " + response);
+                    boolean updated = Util.updateStoredUserPhone(ctx, response, phone);
+                    if (!updated) {
+                        Util.updateStoredUserPhoneFallback(ctx, phone);
+                    }
+                    Toast.makeText(ctx, R.string.profile_phone_saved, Toast.LENGTH_LONG).show();
+                },
+                error -> {
+                    Util.log("profile/edit error: " + error);
+                    Util.updateStoredUserPhoneFallback(ctx, phone);
+                    Toast.makeText(ctx, R.string.profile_phone_save_failed, Toast.LENGTH_LONG).show();
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("name", safeUserAttr(ctx, "name"));
+                params.put("country", safeUserAttr(ctx, "country"));
+                params.put("gender", safeGender(ctx));
+                params.put("phone", phone);
+                params.put("ccp", "");
+                return params;
+            }
+        };
+        req.setRetryPolicy(new DefaultRetryPolicy(
+                5000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+        Volley.newRequestQueue(ctx.getApplicationContext()).add(req);
+    }
+
+    private static String safeUserAttr(Context ctx, String key) {
+        String value = Util.getUserAttr(ctx, key);
+        return value == null ? "" : value;
+    }
+
+    private static String safeGender(Context ctx) {
+        String gender = Util.getUserAttr(ctx, "gender");
+        if ("F".equalsIgnoreCase(gender)) {
+            return "F";
+        }
+        return "M";
+    }
+
 }

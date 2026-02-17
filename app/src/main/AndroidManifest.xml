@@ -32,6 +32,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+        <activity
+            android:name=".HelpActivity"
+            android:exported="false" />
 
         <receiver
             android:name=".SmsReceiver"

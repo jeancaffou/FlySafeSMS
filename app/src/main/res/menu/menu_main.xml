@@ -2,6 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_help"
+        android:title="@string/help_how_to"
+        android:orderInCategory="10"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_edit_phone"
+        android:title="@string/my_phone_number"
+        android:orderInCategory="20"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_logout"
         android:title="@string/logout"
         android:orderInCategory="100"

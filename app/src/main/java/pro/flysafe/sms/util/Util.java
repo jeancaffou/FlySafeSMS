@@ -146,4 +146,31 @@ public class Util {
             log(e);
         }
     }
+
+    public static boolean updateStoredUserPhone(Context ctx, String response, String fallbackPhone) {
+        try {
+            JSONObject obj = new JSONObject(response);
+            if (!obj.has("uid")) {
+                return false;
+            }
+            if (isEmpty(obj.optString("phone", "")) && !isEmpty(fallbackPhone)) {
+                obj.put("phone", fallbackPhone);
+            }
+            PrivatePref.save(ctx, "user", obj.toString());
+            return true;
+        } catch (Exception e) {
+            log(e);
+            return false;
+        }
+    }
+
+    public static void updateStoredUserPhoneFallback(Context ctx, String phone) {
+        try {
+            JSONObject obj = getUserData(ctx);
+            obj.put("phone", phone);
+            PrivatePref.save(ctx, "user", obj.toString());
+        } catch (Exception e) {
+            log(e);
+        }
+    }
 }

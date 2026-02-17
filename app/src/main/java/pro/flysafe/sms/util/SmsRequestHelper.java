@@ -25,8 +25,8 @@ import pro.flysafe.sms.R;
 import pro.flysafe.sms.model.Friend;
 
 public class SmsRequestHelper {
-    // For backwards compatibility with main FlySafe app
-    private static final String SMS_SUFFIX = "0qgXwnSWj2t";
+    // Newer Android APIs don't trigger RECEIVE_SMS with valid SmsRetriever API suffix ...
+    private static final String SMS_SUFFIX = "0";
     private static final String PREF_SMS_MY_PHONE = "pref_sms_my_phone";
 
     public static void sendRequest(Context ctx, Friend friend, String type) {
@@ -43,15 +43,14 @@ public class SmsRequestHelper {
         }
         String phone = friend.phone;
 
+        // Format: "<#> <myPhone> #FlySafe <uid> <lockey> <type> SMS_SUFFIX"
+        String msg = "<#> " + myPhone + " #FlySafe " + uid + " " + friend.lockey + " " + type + " " + SMS_SUFFIX;
         if (Util.isEmpty(phone) || phone.length() < 5) {
             // Let the user pick a recipient in their SMS app when we don't have a phone on file.
-            String msg = "<#> " + myPhone + " #FlySafe " + uid + " " + friend.lockey + " " + type + " " + SMS_SUFFIX;
             composeSMS(ctx, msg, "");
             return;
         }
 
-        // Format: "<#> <myPhone> #FlySafe <uid> <lockey> <type> 0qgXwnSWj2t"
-        String msg = "<#> " + myPhone + " #FlySafe " + uid + " " + friend.lockey + " " + type + " " + SMS_SUFFIX;
         composeSMS(ctx, msg, phone);
     }
 

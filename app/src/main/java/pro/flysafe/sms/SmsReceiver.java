@@ -25,7 +25,6 @@ import pro.flysafe.sms.util.PrivatePref;
 
 public class SmsReceiver extends BroadcastReceiver {
     private static final String SMS_RECEIVED = "android.provider.Telephony.SMS_RECEIVED";
-    private static final String SMS_SUFFIX = "0qgXwnSWj2t";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -129,11 +128,6 @@ public class SmsReceiver extends BroadcastReceiver {
             String[] parts = trimmed.split(" ");
             if (parts.length < 6) {
                 Util.log("SMS parse failed: too few parts");
-                return null;
-            }
-            // Enforce fixed suffix for compatibility and basic validation.
-            if (!trimmed.endsWith(SMS_SUFFIX)) {
-                Util.log("SMS parse failed: missing suffix");
                 return null;
             }
             String legacyReplyTo = parts[1].trim();

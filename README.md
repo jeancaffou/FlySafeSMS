@@ -28,7 +28,7 @@ FlySafeSMS listens for incoming SMS requests that match FlySafe’s format and v
 - **Fallback**: LastKnownLocation uses cached GPS/network provider results and will not trigger a new fix.
 
 ## Permissions
-- SMS: `RECEIVE_SMS`, `READ_SMS`, `SEND_SMS`
+- SMS: `RECEIVE_SMS`, `SEND_SMS`
 - Location: `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`
 - Background location (Android 10+): `ACCESS_BACKGROUND_LOCATION`
 

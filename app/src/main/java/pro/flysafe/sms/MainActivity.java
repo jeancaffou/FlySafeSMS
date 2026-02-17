@@ -108,10 +108,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // These permissions are required to read inbound SMS and reply with location.
+        // These permissions are required for emergency SMS automation replies.
         String[] required = new String[] {
                 Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.READ_SMS,
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION

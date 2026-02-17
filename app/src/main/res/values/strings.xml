@@ -10,7 +10,7 @@
 
     <string name="friends_title">Friends</string>
     <string name="sms_settings_title">SMS emergency replies</string>
-    <string name="sms_settings_desc">Reply automatically with your location when a trusted friend requests it by SMS.</string>
+    <string name="sms_settings_desc">Core functions: Device automation + physical safety. FlySafeSMS automatically receives trusted trigger SMS in background and sends emergency location SMS replies.</string>
     <string name="sms_roaming_title">Allow SMS replies while roaming</string>
 
     <string name="error_generic">Something went wrong. Please try again.</string>
@@ -35,9 +35,9 @@
     <string name="logout_confirm">Are you sure you want to log out?</string>
     <string name="help_how_to">Help</string>
     <string name="my_phone_number">My phone number</string>
-    <string name="help_title">How FlySafe SMS works</string>
+    <string name="help_title">Help</string>
     <string name="help_intro_title">1. Basic flow</string>
-    <string name="help_intro_body">Both people need FlySafeSMS and must allow location sharing for each other in FlySafe.\n\nFrom the friends list, you can send two SMS request types:\n• GPS (fresh location): tries to get a new fix (up to ~2 minutes)\n• Last known: returns the latest cached location immediately</string>
+    <string name="help_intro_body">This app has two core functions:\n• Device automation: it listens for trusted trigger SMS in background and runs automatic location reply flow.\n• Physical safety (safety emergency alert): it sends emergency location SMS replies to trusted contacts.\n\nBoth people need FlySafeSMS and must allow location sharing in FlySafe.\n\nFrom the friends list, you can send two SMS request types:\n• GPS (fresh location): tries to get a new fix (up to ~2 minutes)\n• Last known: returns the latest cached location immediately</string>
     <string name="help_location_types_title">2. Last known vs fresh GPS</string>
     <string name="help_location_types_body">Last known can be old (minutes, hours, or older) if Android has no newer fix.\n\nFresh GPS can fail indoors (no sky view) and then no reply is sent to avoid battery drain.\n\nThe TIME in the reply SMS is the location fix timestamp, not the SMS send time.</string>
     <string name="help_permissions_title">3. Required phone settings</string>
